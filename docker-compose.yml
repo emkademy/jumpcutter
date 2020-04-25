@@ -1,0 +1,17 @@
+version: '3.4'
+
+services:
+  app: &app
+    user: "${UID:-1000}"
+    container_name: jumpcutter-app
+    build:
+      network: host
+      context: .
+      dockerfile: ./docker/Dockerfile
+      args:
+        USER_ID: "${UID:-1000}"
+        DEVELOPMENT: "1"
+    command: "tail -f /dev/null"
+    volumes:
+      - ./:/app
+    ipc: host
