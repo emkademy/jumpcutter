@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "jumpcutter"
-version = "0.1.1"
+version = "0.1.2"
 description = "Jumpcut silent parts of your videos automagically"
 authors = ["Kivanc Yuksel <emkademy@gmail.com>"]
 license="MIT"
@@ -29,6 +29,7 @@ decorator = "~=4.4.2"
 proglog = "~=0.1.9"
 pillow = "~=7.2.0"
 moviepy = "~=1.0.3"
+tqdm = "~=4.60.0"
 
 [tool.poetry.dev-dependencies]
 coverage = "~=5.3.0"

@@ -1,6 +1,7 @@
 from math import ceil
 
 import numpy as np
+from tqdm import tqdm
 
 from moviepy.audio.fx.all import volumex
 from moviepy.editor import VideoFileClip, concatenate_videoclips
@@ -33,7 +34,7 @@ class Clip:
         )
         jumpcutted_clips = []
         previous_stop = 0
-        for start, stop in intervals_to_cut:
+        for start, stop in tqdm(intervals_to_cut, desc="Cutting silent intervals"):
             clip_before = self.clip.subclip(previous_stop, start)
 
             if clip_before.duration > min_loud_part_duration:
@@ -77,7 +78,7 @@ class Audio:
 
         intervals_to_cut = []
         absolute_signal = np.absolute(self.signal)
-        for i, values in enumerate(absolute_signal):
+        for i, values in tqdm(enumerate(absolute_signal), desc="Getting silent intervals to cut", total=len(absolute_signal)):
             silence = all([value < magnitude_threshold for value in values])
             silence_counter += silence
             failure_counter += not silence
