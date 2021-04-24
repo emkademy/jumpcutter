@@ -43,6 +43,10 @@ have a default value that “just works”. So, if you don’t want you don’t 
      speed them up "x" times.
 8. `--min-loud-part-duration`, `-l`: If this parameter is given, loud parts of the video that are shorter then this 
      parameter will also be cut.
+9. `--cut`, `-c`: If you want, you can also cut voiced parts of the video (to have some fun :)). There are 3 choices 
+     you can make for this parameter: `silent`, `voiced`, `both`. If you choose `silent`, silent parts of the video will
+     be cutted; if you choose `voiced`, voiced parts of the video will be cutted; if you choose `both` 2 videos will be
+     saved: 1 for the silent parts, 1 for the voiced parts (default: silent).
      
 ## Examples of running the program
 
@@ -50,5 +54,5 @@ have a default value that “just works”. So, if you don’t want you don’t 
 # The simplest way you can run the program
 jumpcutter -i input_video.mp4 -o output_video.mp4
 # If you want, you can also set the other parameters that was mentioned
-jumpcutter -i input_video.mp4 -o output_video.mp4 -m 0.05 -d 1.0 -f 0.2 -s 0.2 -x 2000 -l 1.0
+jumpcutter -i input_video.mp4 -o output_video.mp4 -m 0.05 -d 1.0 -f 0.2 -s 0.2 -x 2000 -l 1.0 -c both
 ```

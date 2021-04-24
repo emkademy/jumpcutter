@@ -1,29 +1,34 @@
 from math import ceil
 
 import numpy as np
-from tqdm import tqdm
 
 from moviepy.audio.fx.all import volumex
 from moviepy.editor import VideoFileClip, concatenate_videoclips
 from moviepy.video.fx.all import speedx
+from tqdm import tqdm
 
 
 class Clip:
-    def __init__(self, clip_path):
+    def __init__(self, clip_path, min_loud_part_duration, silence_part_speed):
         self.clip = VideoFileClip(clip_path)
         self.audio = Audio(self.clip.audio)
+        self.cut_to_method = {
+            "silent": self.jumpcut_silent_parts,
+            "voiced": self.jumpcut_voiced_parts,
+        }
+        self.min_loud_part_duration = min_loud_part_duration
+        self.silence_part_speed = silence_part_speed
 
     def get_duration(self):
         return self.clip.duration
 
     def jumpcut(
         self,
+        cuts,
         magnitude_threshold_ratio,
         duration_threshold_in_seconds,
         failure_tolerance_ratio,
         space_on_edges,
-        silence_part_speed,
-        min_loud_part_duration,
     ):
 
         intervals_to_cut = self.audio.get_intervals_to_cut(
@@ -32,25 +37,41 @@ class Clip:
             failure_tolerance_ratio,
             space_on_edges,
         )
+        outputs = {}
+        for cut in cuts:
+            jumpcutted_clips = self.cut_to_method[cut](intervals_to_cut)
+            outputs[cut] = concatenate_videoclips(jumpcutted_clips)
+
+        return outputs
+
+    def jumpcut_silent_parts(self, intervals_to_cut):
         jumpcutted_clips = []
         previous_stop = 0
         for start, stop in tqdm(intervals_to_cut, desc="Cutting silent intervals"):
             clip_before = self.clip.subclip(previous_stop, start)
 
-            if clip_before.duration > min_loud_part_duration:
+            if clip_before.duration > self.min_loud_part_duration:
                 jumpcutted_clips.append(clip_before)
 
-            if silence_part_speed is not None:
+            if self.silence_part_speed is not None:
                 silence_clip = self.clip.subclip(start, stop)
-                silence_clip = speedx(silence_clip, silence_part_speed).without_audio()
+                silence_clip = speedx(
+                    silence_clip, self.silence_part_speed
+                ).without_audio()
                 jumpcutted_clips.append(silence_clip)
 
             previous_stop = stop
 
         last_clip = self.clip.subclip(stop, self.clip.duration)
         jumpcutted_clips.append(last_clip)
+        return jumpcutted_clips
 
-        return concatenate_videoclips(jumpcutted_clips), intervals_to_cut
+    def jumpcut_voiced_parts(self, intervals_to_cut):
+        jumpcutted_clips = []
+        for start, stop in tqdm(intervals_to_cut, desc="Cutting voiced intervals"):
+            silence_clip = self.clip.subclip(start, stop)
+            jumpcutted_clips.append(silence_clip)
+        return jumpcutted_clips
 
 
 class Audio:
@@ -78,7 +99,11 @@ class Audio:
 
         intervals_to_cut = []
         absolute_signal = np.absolute(self.signal)
-        for i, values in tqdm(enumerate(absolute_signal), desc="Getting silent intervals to cut", total=len(absolute_signal)):
+        for i, values in tqdm(
+            enumerate(absolute_signal),
+            desc="Getting silent intervals to cut",
+            total=len(absolute_signal),
+        ):
             silence = all([value < magnitude_threshold for value in values])
             silence_counter += silence
             failure_counter += not silence
