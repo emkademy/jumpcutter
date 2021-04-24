@@ -43,6 +43,10 @@ have a default value that “just works”. So, if you don’t want you don’t 
      speed them up "x" times.
 8. `--min-loud-part-duration`, `-l`: If this parameter is given, loud parts of the video that are shorter then this 
      parameter will also be cut.
+9. `--cut`, `-c`: If you want, you can also cut voiced parts of the video (to have some fun :)). There are 3 choices 
+     you can make for this parameter: `silent`, `voiced`, `both`. If you choose `silent`, silent parts of the video will
+     be cutted; if you choose `voiced`, voiced parts of the video will be cutted; if you choose `both` 2 videos will be
+     saved: 1 for the silent parts, 1 for the voiced parts (default: silent).
      
 ## Examples of running the program
 

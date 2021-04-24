@@ -8,13 +8,23 @@ from jumpcutter.src.clip import Clip
 def main():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--input", "-i", help="Path to the input video", required=True)
+    parser.add_argument(
+        "--input", "-i", help="Path to the input video", type=Path, required=True
+    )
     parser.add_argument(
         "--output",
         "-o",
         help="Path to where you want to save the output video. "
         "Note: Not all extensions are supported. Checkout moviepy's documentation",
+        type=Path,
         required=True,
+    )
+    parser.add_argument(
+        "--cut",
+        "-c",
+        choices=["silent", "voiced", "both"],
+        help="Decides whether to cut silent parts, voiced parts, or both (creating 2 separate videos)",
+        default="silent",
     )
     parser.add_argument(
         "--magnitude-threshold-ratio",
@@ -82,23 +92,28 @@ def main():
         )
         print(60 * "*")
 
-    input_path = (
-        args.input if Path(args.input).is_absolute() else Path().cwd() / args.input
-    )
-    output_path = (
-        args.output if Path(args.output).is_absolute() else Path().cwd() / args.output
-    )
+    input_path = args.input.resolve()
+    output_path = args.output.resolve()
+    cuts = [args.cut] if args.cut != "both" else ["silent", "voiced"]
 
-    clip = Clip(str(input_path))
-    jumpcutted_clip, _ = clip.jumpcut(
+    clip = Clip(str(input_path), args.min_loud_part_duration, args.silence_part_speed)
+    outputs = clip.jumpcut(
+        cuts,
         args.magnitude_threshold_ratio,
         args.duration_threshold,
         args.failure_tolerance_ratio,
         args.space_on_edges,
-        args.silence_part_speed,
-        args.min_loud_part_duration,
     )
-    jumpcutted_clip.write_videofile(str(output_path))
+    for cut_type, jumpcutted_clip in outputs.items():
+        if len(outputs) == 2:
+            jumpcutted_clip.write_videofile(
+                str(
+                    output_path.parent
+                    / f"{output_path.stem}_{cut_type}_parts_cutted{output_path.suffix}"
+                )
+            )
+        else:
+            jumpcutted_clip.write_videofile(str(output_path))
 
 
 if __name__ == "__main__":
