@@ -1,0 +1,10 @@
+*
+
+!docker
+
+!jumpcutter/*
+jumpcutter/.pytest_cache/
+
+!pyproject.toml
+!poetry.lock
+!README.md

@@ -18,7 +18,7 @@ pip install jumpcutter
 [![Watch the video](https://img.youtube.com/vi/UDjzm_lzWOA/hqdefault.jpg)](https://youtu.be/UDjzm_lzWOA)
 
 ## How to run it?
-There are 8 command line arguments you can run the program with. 
+There are 11 command line arguments you can run the program with. 
 Before explaining them, I would like to say that most of these parameters 
 have a default value that “just works”. So, if you don’t want you don’t need to specify 
 (or know) almost any of these parameters. You will be just fine with the default values.
@@ -47,6 +47,11 @@ have a default value that “just works”. So, if you don’t want you don’t 
      you can make for this parameter: `silent`, `voiced`, `both`. If you choose `silent`, silent parts of the video will
      be cutted; if you choose `voiced`, voiced parts of the video will be cutted; if you choose `both` 2 videos will be
      saved: 1 for the silent parts, 1 for the voiced parts (default: silent).
+10. `--codec`: Codec to use for image encoding. Can be any codec supported by ffmpeg. If the filename 
+     has extension ‘.mp4’, ‘.ogv’, ‘.webm’, the codec will be set accordingly, but you can still set
+     it if you don’t like the default. For other extensions, the output filename must be set accordingly. 
+     Check [here](https://zulko.github.io/moviepy/ref/VideoClip/VideoClip.html#moviepy.video.compositing.CompositeVideoClip.CompositeVideoClip.write_videofile)
+11. `bitrate`: Desired bitrate of the output video. Leave blank if you don't know what this is.
      
 ## Examples of running the program
 

@@ -79,6 +79,20 @@ def main():
         required=False,
         default=-1,
     )
+    parser.add_argument(
+        "--codec",
+        help="Codec to use for image encoding. Can be any codec supported by ffmpeg. If the filename "
+        "has extension ‘.mp4’, ‘.ogv’, ‘.webm’, the codec will be set accordingly, but you can still set "
+        "it if you don’t like the default. For other extensions, the output filename must be set accordingly.",
+        type=str,
+        required=False,
+    )
+    parser.add_argument(
+        "--bitrate",
+        help="Desired bitrate for the output video",
+        type=int,
+        required=False,
+    )
 
     args = parser.parse_args()
     print("Running with the arguments:")
@@ -95,6 +109,8 @@ def main():
     input_path = args.input.resolve()
     output_path = args.output.resolve()
     cuts = [args.cut] if args.cut != "both" else ["silent", "voiced"]
+    codec = args.codec
+    bitrate = args.bitrate
 
     clip = Clip(str(input_path), args.min_loud_part_duration, args.silence_part_speed)
     outputs = clip.jumpcut(
@@ -110,10 +126,14 @@ def main():
                 str(
                     output_path.parent
                     / f"{output_path.stem}_{cut_type}_parts_cutted{output_path.suffix}"
-                )
+                ),
+                codec=codec,
+                bitrate=bitrate,
             )
         else:
-            jumpcutted_clip.write_videofile(str(output_path))
+            jumpcutted_clip.write_videofile(
+                str(output_path), codec=codec, bitrate=bitrate
+            )
 
 
 if __name__ == "__main__":
