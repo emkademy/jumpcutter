@@ -2,7 +2,7 @@ import argparse
 
 from pathlib import Path
 
-from jumpcutter.src.clip import Clip
+from jumpcutter.clip import Clip
 
 
 def main():

@@ -9,8 +9,8 @@ SHELL:=/bin/bash
 PROFILE = default
 PROJECT_NAME = jumpcutter
 PYTHON_INTERPRETER = python
-DOCKER_COMPOSE_CMD = docker-compose run -w /app/jumpcutter --rm app
-lock_dependencies: BUILD_POETRY_LOCK := $(shell docker-compose run --rm app env | grep BUILD_POETRY_LOCK | cut -d'=' -f2)
+DOCKER_COMPOSE_RUN = docker-compose run -w /app --rm app
+lock_dependencies: BUILD_POETRY_LOCK = /home/emkademy/poetry.lock.build
 
 
 #################################################################################
@@ -32,7 +32,6 @@ down:
 ## docker exec -it jumpcutter-app bash
 exec-in: up
 	docker exec -it jumpcutter-app bash
-	make down
 
 ## Delete all compiled Python files
 clean:
@@ -41,25 +40,15 @@ clean:
 
 ## Lint using pylama, isort and black
 lint:
-	$(DOCKER_COMPOSE_CMD) pylama
-	$(DOCKER_COMPOSE_CMD) isort --check-only --atomic .
-	$(DOCKER_COMPOSE_CMD) black --check .
+	$(DOCKER_COMPOSE_RUN) bash -c "pylama && isort --check-only --atomic . && black --check ."
 
 ## Sort imports
 sort:
-	$(DOCKER_COMPOSE_CMD) isort --atomic .
+	$(DOCKER_COMPOSE_RUN) isort --atomic .
 
 ## Format code with black
 format:
-	$(DOCKER_COMPOSE_CMD) black .
-
-## Run tests with pytest
-test:
-	$(DOCKER_COMPOSE_CMD) pytest "${args[@]}"
-
-## Lint and run tests
-runtest: lint
-	$(DOCKER_COMPOSE_CMD) pytest --cov --cov-report xml --verbose
+	$(DOCKER_COMPOSE_RUN) black .
 
 ## Lock dependencies with pipenv
 lock_dependencies:

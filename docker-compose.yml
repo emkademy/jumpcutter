@@ -1,7 +1,7 @@
 version: '3.4'
 
 services:
-  app: &app
+  app:
     user: "${UID:-1000}"
     container_name: jumpcutter-app
     build:

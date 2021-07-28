@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "jumpcutter"
-version = "0.1.4"
+version = "0.1.5"
 description = "Jumpcut silent parts of your videos automagically"
 authors = ["Kivanc Yuksel <emkademy@gmail.com>"]
 license="MIT"
