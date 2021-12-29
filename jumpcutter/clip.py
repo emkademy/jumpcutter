@@ -59,7 +59,7 @@ class Clip:
 
             previous_stop = stop
 
-        last_clip = self.clip.subclip(stop, self.clip.duration)
+        last_clip = self.clip.subclip(previous_stop, self.clip.duration)
         jumpcutted_clips.append(last_clip)
         return jumpcutted_clips
 
