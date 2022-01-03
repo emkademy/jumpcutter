@@ -59,15 +59,17 @@ class Clip:
 
             previous_stop = stop
 
-        last_clip = self.clip.subclip(stop, self.clip.duration)
-        jumpcutted_clips.append(last_clip)
+        if previous_stop < self.clip.duration:
+            last_clip = self.clip.subclip(previous_stop, self.clip.duration)
+            jumpcutted_clips.append(last_clip)
         return jumpcutted_clips
 
     def jumpcut_voiced_parts(self, intervals_to_cut):
         jumpcutted_clips = []
         for start, stop in tqdm(intervals_to_cut, desc="Cutting voiced intervals"):
-            silence_clip = self.clip.subclip(start, stop)
-            jumpcutted_clips.append(silence_clip)
+            if start < stop:
+                silence_clip = self.clip.subclip(start, stop)
+                jumpcutted_clips.append(silence_clip)
         return jumpcutted_clips
 
 
