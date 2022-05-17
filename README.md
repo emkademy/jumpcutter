@@ -23,27 +23,27 @@ Before explaining them, I would like to say that most of these parameters
 have a default value that “just works”. So, if you don’t want you don’t need to specify 
 (or know) almost any of these parameters. You will be just fine with the default values.
 
-1. `--input`, `-i`: Path to the video that you want to jump-cut.
-2. `--output`, `-o`: Path to where you want to save the output video.
-3. `--magnitude-threshold-ratio`, `-m`: The percentage of the maximum value of your audio signal that you would like to 
+1. `-i`, `--input`: Path to the video that you want to jump-cut.
+2. `-o`, `--output`: Path to where you want to save the output video.
+3. `-m`, `--magnitude-threshold-ratio`: The percentage of the maximum value of your audio signal that you would like to 
      consider as silent a signal (default: 0.02).
-4. `--duration-threshold`, `-d`: Minimum number of required seconds in silence to cut it out. For example if this parameter 
+4. `-d`, `--duration-threshold`: Minimum number of required seconds in silence to cut it out. For example if this parameter 
      is 0.5, it means that the silence parts have to last minimum 0.5 seconds, otherwise they won't be jump-cut (default: 0.5).
-5. `--failure-tolerance-ratio`, `-f`: Most of the times, there are 44100 audio signal values in 1 second of a video. 
+5. `-f`, `--failure-tolerance-ratio`: Most of the times, there are 44100 audio signal values in 1 second of a video. 
      Let's say the "--duration-threshold" was set to 0.5. This means that, we need to check minimum 22050 signal 
      values to see if there is a silent part of not. What happens if we found 22049 values that we consider as silent, 
      but there is 1 value that is above our threshold. Should we just throw this part of the video and consider it as a 
      loud signal? I think we shouldn't. This parameter leaves some room for failure, it tolerates high signal values until 
      some point. Let's say it is set to 0.1, it means that 10% of the signal that is currently being investigated can 
      have values that are higher than our threshold, but they are still going to be considered as a silent part (default: 0.1).
-6. `--spaces-on-edges`, `-s`: Leaves some space on the edges of silence cut. E.g. if it is found that there is 
+6. `-s`, `--space-on-edges`: Leaves some space on the edges of silence cut. E.g. if it is found that there is 
      silence between 10th and 20th second of the video, then instead of cutting it out directly, we cut out 
      (10+space_on_edges)th and (20-space_on_edges)th seconds of the clip (default: 0.1).
-7. `--silence-part-speed`, `-x`: If this parameter is given, instead of cutting the silent parts out, the script will 
+7. `-x`, `--silence-part-speed` : If this parameter is given, instead of cutting the silent parts out, the script will 
      speed them up "x" times.
-8. `--min-loud-part-duration`, `-l`: If this parameter is given, loud parts of the video that are shorter then this 
+8. `-l`, `--min-loud-part-duration`: If this parameter is given, loud parts of the video that are shorter then this 
      parameter will also be cut.
-9. `--cut`, `-c`: If you want, you can also cut voiced parts of the video (to have some fun :)). There are 3 choices 
+9. `-c`, `--cut`: If you want, you can also cut voiced parts of the video (to have some fun :)). There are 3 choices 
      you can make for this parameter: `silent`, `voiced`, `both`. If you choose `silent`, silent parts of the video will
      be cutted; if you choose `voiced`, voiced parts of the video will be cutted; if you choose `both` 2 videos will be
      saved: 1 for the silent parts, 1 for the voiced parts (default: silent).
