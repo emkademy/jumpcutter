@@ -3,7 +3,8 @@ import argparse
 from pathlib import Path
 
 from jumpcutter.clip import Clip
-
+from jumpcutter.clip import xmlGen
+import xml.etree.ElementTree as ET
 
 def main():
     parser = argparse.ArgumentParser()
@@ -25,6 +26,13 @@ def main():
         choices=["silent", "voiced", "both"],
         help="Decides whether to cut silent parts, voiced parts, or both (creating 2 separate videos)",
         default="silent",
+    )
+    parser.add_argument(
+        "--timeline-export",
+        "-t",
+        choices=["video", "xml", "both"],
+        help="A method for getting the cut locations in timeline form to allow for importing to video editors, timeline will be in FCPXML format. and should be importable into programs such as Davinci Resolve",
+        default="video",
     )
     parser.add_argument(
         "--magnitude-threshold-ratio",
@@ -109,31 +117,44 @@ def main():
     input_path = args.input.resolve()
     output_path = args.output.resolve()
     cuts = [args.cut] if args.cut != "both" else ["silent", "voiced"]
+    timelines = [args.timeline_export] if args.timeline_export != "both" else ["video", "xml"]
     codec = args.codec
     bitrate = args.bitrate
 
     clip = Clip(str(input_path), args.min_loud_part_duration, args.silence_part_speed)
-    outputs = clip.jumpcut(
-        cuts,
-        args.magnitude_threshold_ratio,
-        args.duration_threshold,
-        args.failure_tolerance_ratio,
-        args.space_on_edges,
-    )
-    for cut_type, jumpcutted_clip in outputs.items():
-        if len(outputs) == 2:
-            jumpcutted_clip.write_videofile(
-                str(
-                    output_path.parent
-                    / f"{output_path.stem}_{cut_type}_parts_cutted{output_path.suffix}"
-                ),
-                codec=codec,
-                bitrate=bitrate,
-            )
-        else:
-            jumpcutted_clip.write_videofile(
-                str(output_path), codec=codec, bitrate=bitrate
-            )
+    if "video" in timelines:
+        outputs = clip.jumpcut(
+            cuts,
+            args.magnitude_threshold_ratio,
+            args.duration_threshold,
+            args.failure_tolerance_ratio,
+            args.space_on_edges,
+        )
+        for cut_type, jumpcutted_clip in outputs.items():
+            if len(outputs) == 2:
+                jumpcutted_clip.write_videofile(
+                    str(
+                        output_path.parent
+                        / f"{output_path.stem}_{cut_type}_parts_cutted{output_path.suffix}"
+                    ),
+                    codec=codec,
+                    bitrate=bitrate,
+                )
+            else:
+                jumpcutted_clip.write_videofile(
+                    str(output_path), codec=codec, bitrate=bitrate
+                )
+    if "xml" in timelines:
+        
+        xmlGen(str(input_path),
+               str(output_path),
+               args.magnitude_threshold_ratio,
+               args.duration_threshold,
+               args.failure_tolerance_ratio,
+               args.space_on_edges,
+               args.min_loud_part_duration,
+               args.cut)
+               
 
 
 if __name__ == "__main__":
