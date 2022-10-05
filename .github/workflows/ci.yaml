@@ -1,0 +1,19 @@
+name: CI
+
+on: [push]
+
+jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+    env:
+      COMPOSE_FILE: docker-compose.yaml
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Build docker image
+      run: make build
+    - name: Lint Check
+      run: make lint
+    - name: Type Check
+      run: make check-type-annotations
