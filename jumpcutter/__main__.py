@@ -5,7 +5,7 @@ from pathlib import Path
 from jumpcutter.clip import Clip
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
