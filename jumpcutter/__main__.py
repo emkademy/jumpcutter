@@ -6,7 +6,7 @@ from jumpcutter.clip import Clip
 from jumpcutter.clip import xmlGen
 import xml.etree.ElementTree as ET
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
 
     parser.add_argument(

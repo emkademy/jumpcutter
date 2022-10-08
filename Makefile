@@ -40,15 +40,20 @@ clean:
 
 ## Lint using pylama, isort and black
 lint:
-	$(DOCKER_COMPOSE_RUN) bash -c "pylama && isort --check-only --atomic . && black --check ."
+	$(DOCKER_COMPOSE_RUN) bash -c "pylama && isort --check-only --atomic ./jumpcutter && black --check ./jumpcutter"
 
 ## Sort imports
 sort:
-	$(DOCKER_COMPOSE_RUN) isort --atomic .
+	$(DOCKER_COMPOSE_RUN) isort --atomic ./jumpcutter
 
 ## Format code with black
 format:
-	$(DOCKER_COMPOSE_RUN) black .
+	$(DOCKER_COMPOSE_RUN) black ./jumpcutter
+
+
+## Check type annotations
+check-type-annotations:
+	$(DOCKER_COMPOSE_RUN) mypy ./jumpcutter
 
 ## Lock dependencies with pipenv
 lock_dependencies:

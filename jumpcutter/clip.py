@@ -1,7 +1,11 @@
+from typing import Dict, List, Tuple
+
 import numpy as np
 
+from moviepy.audio.io.AudioFileClip import AudioFileClip
 from moviepy.editor import VideoFileClip, concatenate_videoclips
 from moviepy.video.fx.all import speedx
+from moviepy.video.io.VideoFileClip import VideoFileClip
 from tqdm import tqdm
 import os
 import xml.etree.cElementTree as ElementTree
@@ -9,7 +13,9 @@ import xml.etree.cElementTree as ElementTree
 
 
 class Clip:
-    def __init__(self, clip_path, min_loud_part_duration, silence_part_speed):
+    def __init__(
+        self, clip_path: str, min_loud_part_duration: int, silence_part_speed: int
+    ) -> None:
         self.clip = VideoFileClip(clip_path)
         self.audio = Audio(self.clip.audio)
         self.cut_to_method = {
@@ -19,17 +25,14 @@ class Clip:
         self.min_loud_part_duration = min_loud_part_duration
         self.silence_part_speed = silence_part_speed
 
-    def get_duration(self):
-        return self.clip.duration
-
     def jumpcut(
         self,
-        cuts,
-        magnitude_threshold_ratio,
-        duration_threshold_in_seconds,
-        failure_tolerance_ratio,
-        space_on_edges,
-    ):
+        cuts: List[str],
+        magnitude_threshold_ratio: float,
+        duration_threshold_in_seconds: float,
+        failure_tolerance_ratio: float,
+        space_on_edges: float,
+    ) -> Dict[str, VideoFileClip]:
 
         intervals_to_cut = self.audio.get_intervals_to_cut(
             magnitude_threshold_ratio,
@@ -44,7 +47,9 @@ class Clip:
 
         return outputs
 
-    def jumpcut_silent_parts(self, intervals_to_cut):
+    def jumpcut_silent_parts(
+        self, intervals_to_cut: List[Tuple[float, float]]
+    ) -> List[VideoFileClip]:
         jumpcutted_clips = []
         previous_stop = 0
         for start, stop in tqdm(intervals_to_cut, desc="Cutting silent intervals"):
@@ -67,7 +72,9 @@ class Clip:
             jumpcutted_clips.append(last_clip)
         return jumpcutted_clips
 
-    def jumpcut_voiced_parts(self, intervals_to_cut):
+    def jumpcut_voiced_parts(
+        self, intervals_to_cut: List[Tuple[float, float]]
+    ) -> List[VideoFileClip]:
         jumpcutted_clips = []
         for start, stop in tqdm(intervals_to_cut, desc="Cutting voiced intervals"):
             if start < stop:
@@ -77,7 +84,7 @@ class Clip:
 
 
 class Audio:
-    def __init__(self, audio):
+    def __init__(self, audio: AudioFileClip) -> None:
         self.audio = audio
         self.fps = audio.fps
 
@@ -87,11 +94,11 @@ class Audio:
 
     def get_intervals_to_cut(
         self,
-        magnitude_threshold_ratio,
-        duration_threshold_in_seconds,
-        failure_tolerance_ratio,
-        space_on_edges,
-    ):
+        magnitude_threshold_ratio: float,
+        duration_threshold_in_seconds: float,
+        failure_tolerance_ratio: float,
+        space_on_edges: float,
+    ) -> List[Tuple[float, float]]:
         min_magnitude = min(abs(np.min(self.signal)), np.max(self.signal))
         magnitude_threshold = min_magnitude * magnitude_threshold_ratio
         failure_tolerance = self.fps * failure_tolerance_ratio
