@@ -133,16 +133,18 @@ class Audio:
 
 
 class xmlGen:
-    def __init__(self,
-                 clip_path: str,
-                 out_file: str,
-                 magnitude_threshold_ratio: float,
-                 duration_threshold: float,
-                 failure_tolerance_ratio: float,
-                 space_on_edges: float,
-                 min_loud_part_duration: float,
-                 cutType: str,
-                 audioChannels: int)->None:
+    def __init__(
+        self,
+        clip_path: str,
+        out_file: str,
+        magnitude_threshold_ratio: float,
+        duration_threshold: float,
+        failure_tolerance_ratio: float,
+        space_on_edges: float,
+        min_loud_part_duration: float,
+        cutType: str,
+        audioChannels: int,
+    ) -> None:
         self.audioChannels = audioChannels
         self.clip_path = clip_path
         self.clip = VideoFileClip(clip_path)
@@ -170,7 +172,7 @@ class xmlGen:
         self.makeXML()
         self.export()
 
-    def getCuts(self)->None:
+    def getCuts(self) -> None:
         self.fullClipDurration = self.clip.duration * self.fps
         intervals_to_cut = self.audio.get_intervals_to_cut(
             self.magnitude_threshold_ratio,
@@ -202,7 +204,7 @@ class xmlGen:
             lastLoudClip = (stop, self.clip.duration)
             self.cuts.append(lastLoudClip)
 
-    def getDuration(self)->None:
+    def getDuration(self) -> None:
         self.durations = []
         self.frameCuts = []
         for clips in self.cuts:
@@ -212,7 +214,7 @@ class xmlGen:
 
         self.duration = int(sum(self.durations))
 
-    def makeXML(self)->None:
+    def makeXML(self) -> None:
         self.tree = ElementTree.Element("xmeml", {"version": "5"})
         seq = ElementTree.SubElement(self.tree, "sequence")
         name = ElementTree.SubElement(seq, "name").text = (
@@ -238,10 +240,12 @@ class xmlGen:
         for cuts in self.frameCuts:
             self.clipcount += 1
             linkedTracks = {}
-            linkedTracks["video"] = "{} {}".format(self.clipName, self.clipNumber)
+            linkedTracks["video"] = ["{} {}".format(self.clipName, self.clipNumber)]
             linkedTracks["audio"] = []
             for i in range(self.audioChannels):
-                linkedTracks["audio"].append("{} {}".format(self.clipName, self.clipNumber + 1 + i))
+                linkedTracks["audio"].append(
+                    "{} {}".format(self.clipName, self.clipNumber + 1 + i)
+                )
             self.addVideoTrack(vt, cuts, linkedTracks)
             trackindex = 0
             for at in ats:
@@ -257,12 +261,14 @@ class xmlGen:
         ElementTree.SubElement(at, "enabled").text = "TRUE"
         ElementTree.SubElement(at, "locked").text = "FALSE"
 
-    def addAudioTrack(self,
-                      vt: ElementTree.Element,
-                      cuts: Tuple[float,float],
-                      clipName:str,
-                      linkedTracks: dict,
-                      trackindex: int)->None:
+    def addAudioTrack(
+        self,
+        vt: ElementTree.Element,
+        cuts: Tuple[float, float],
+        clipName: str,
+        linkedTracks: Dict[str, List[str]],
+        trackindex: int,
+    ) -> None:
         clipItem = ElementTree.SubElement(vt, "clipitem", {"id": clipName})
         ElementTree.SubElement(clipItem, "name").text = self.clipName
         ElementTree.SubElement(clipItem, "duration").text = str(self.fullClipDurration)
@@ -282,7 +288,7 @@ class xmlGen:
         ElementTree.SubElement(sourceTrack, "trackindex").text = str(trackindex)
 
         vidLink = ElementTree.SubElement(clipItem, "link")
-        ElementTree.SubElement(vidLink, "linkclipref").text = linkedTracks["video"]
+        ElementTree.SubElement(vidLink, "linkclipref").text = linkedTracks["video"][0]
         ElementTree.SubElement(vidLink, "mediatype").text = "video"
 
         for audioLink in linkedTracks["audio"]:
@@ -290,10 +296,9 @@ class xmlGen:
             ElementTree.SubElement(lin, "linkclipref").text = audioLink
             ElementTree.SubElement(lin, "mediatype").text = "audio"
 
-    def addVideoTrack(self,
-                      vt: ElementTree.Element,
-                      cuts:Tuple[float, float],
-                      linkedTracks: dict)->None:
+    def addVideoTrack(
+        self, vt: ElementTree.Element, cuts: Tuple[float, float], linkedTracks: dict
+    ) -> None:
         clipItem = ElementTree.SubElement(
             vt, "clipitem", {"id": "{} {}".format(self.clipName, self.clipNumber)}
         )
@@ -425,13 +430,13 @@ class xmlGen:
         ElementTree.SubElement(parm3a, "valuemax").text = "100"
 
         vidLink = ElementTree.SubElement(clipItem, "link")
-        ElementTree.SubElement(vidLink, "linkclipref").text = linkedTracks["video"]
+        ElementTree.SubElement(vidLink, "linkclipref").text = linkedTracks["video"][0]
 
         for audioLink in linkedTracks["audio"]:
             lin = ElementTree.SubElement(clipItem, "link")
             ElementTree.SubElement(lin, "linkclipref").text = audioLink
 
-    def setVideoFormat(self, video: ElementTree.Element)->None:
+    def setVideoFormat(self, video: ElementTree.Element) -> None:
         form = ElementTree.SubElement(video, "format")
         sampChar = ElementTree.SubElement(form, "samplecharacteristics")
         ElementTree.SubElement(sampChar, "width").text = str(self.width)
@@ -445,17 +450,17 @@ class xmlGen:
         data = ElementTree.SubElement(appData, "data")
         ElementTree.SubElement(data, "qtcodec")
 
-    def addRate(self, root: ElementTree.Element)->None:
+    def addRate(self, root: ElementTree.Element) -> None:
         rat = ElementTree.SubElement(root, "rate")
         ElementTree.SubElement(rat, "timebase").text = str(self.fps)
         ElementTree.SubElement(rat, "ntsc").text = "FALSE"
 
-    def export(self)->None:
+    def export(self) -> None:
         with open(self.out_file, "wb") as f:
             f.write(
                 '<?xml version="1.0" encoding="UTF-8" ?>\n<!DOCTYPE xmeml>\n'.encode(
                     "utf8"
                 )
             )
-            #ElementTree.indent(self.tree, space="\t", level=0)
+            # ElementTree.indent(self.tree, space="\t", level=0)
             ElementTree.ElementTree(self.tree).write(f, "utf-8")
