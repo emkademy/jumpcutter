@@ -2,13 +2,11 @@ import argparse
 
 from pathlib import Path
 
-from jumpcutter.clip import Clip
-from jumpcutter.clip import xmlGen
-import xml.etree.ElementTree as ET
+from jumpcutter.clip import Clip, xmlGen
+
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-
     parser.add_argument(
         "--input", "-i", help="Path to the input video", type=Path, required=True
     )
@@ -31,8 +29,18 @@ def main() -> None:
         "--timeline-export",
         "-t",
         choices=["video", "xml", "both"],
-        help="A method for getting the cut locations in timeline form to allow for importing to video editors, timeline will be in FCPXML format. and should be importable into programs such as Davinci Resolve",
+        help="A method for getting the cut locations in timeline form to allow for importing to video "
+        "editors, timeline will be in FCPXML format. and should be importable into programs such as"
+        " Davinci Resolve",
         default="video",
+    )
+    parser.add_argument(
+        "--audio-tracks",
+        "-a",
+        help="Audio cuts are only detected on track one, however the XML file can be set up to auto "
+        "generate other tracks, multiple tracks are not supported by the moviepy core libraries",
+        type=int,
+        default=1,
     )
     parser.add_argument(
         "--magnitude-threshold-ratio",
@@ -117,7 +125,9 @@ def main() -> None:
     input_path = args.input.resolve()
     output_path = args.output.resolve()
     cuts = [args.cut] if args.cut != "both" else ["silent", "voiced"]
-    timelines = [args.timeline_export] if args.timeline_export != "both" else ["video", "xml"]
+    timelines = (
+        [args.timeline_export] if args.timeline_export != "both" else ["video", "xml"]
+    )
     codec = args.codec
     bitrate = args.bitrate
 
@@ -145,16 +155,17 @@ def main() -> None:
                     str(output_path), codec=codec, bitrate=bitrate
                 )
     if "xml" in timelines:
-        
-        xmlGen(str(input_path),
-               str(output_path),
-               args.magnitude_threshold_ratio,
-               args.duration_threshold,
-               args.failure_tolerance_ratio,
-               args.space_on_edges,
-               args.min_loud_part_duration,
-               args.cut)
-               
+        xmlGen(
+            str(input_path),
+            str(output_path),
+            args.magnitude_threshold_ratio,
+            args.duration_threshold,
+            args.failure_tolerance_ratio,
+            args.space_on_edges,
+            args.min_loud_part_duration,
+            args.cut,
+            audioChannels=args.audio_tracks,
+        )
 
 
 if __name__ == "__main__":
