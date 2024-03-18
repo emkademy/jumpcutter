@@ -55,6 +55,16 @@ def main() -> None:
         default=0.1,
     )
     parser.add_argument(
+        "--preset",
+        "-p",
+        help="Sets the time that FFMPEG will take to compress the video. The slower,"
+        "the better the compression rate. Possibilities are: ``"ultrafast"``,
+        "``"superfast"``, ``"veryfast"``, ``"faster"`` (default), ``"fast"``,  ``"medium"``,
+        "``"slow"``, ``"slower"``, ``"veryslow"``, ``"placebo"``.",
+        type=str,
+        default="faster",
+    )
+    parser.add_argument(
         "--space-on-edges",
         "-s",
         help="Leaves some space on the edges of silence cut. E.g. if it is found that there is silence "
@@ -121,19 +131,14 @@ def main() -> None:
         args.space_on_edges,
     )
     for cut_type, jumpcutted_clip in outputs.items():
-        if len(outputs) == 2:
-            jumpcutted_clip.write_videofile(
-                str(
+        if len(outputs) == 1:
+            output_path = str(
                     output_path.parent
                     / f"{output_path.stem}_{cut_type}_parts_cutted{output_path.suffix}"
-                ),
-                codec=codec,
-                bitrate=bitrate,
-            )
-        else:
-            jumpcutted_clip.write_videofile(
-                str(output_path), codec=codec, bitrate=bitrate
-            )
+                )
+        jumpcutted_clip.write_videofile(
+            str(output_path), codec=codec, bitrate=bitrate, preset=preset
+        )
 
 
 if __name__ == "__main__":
