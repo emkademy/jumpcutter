@@ -1,5 +1,3 @@
-version: '3.4'
-
 services:
   app:
     user: "${UID:-1000}"
