@@ -84,8 +84,10 @@ class Audio:
     def __init__(self, audio: AudioFileClip) -> None:
         self.audio = audio
         self.fps = audio.fps
-
-        self.signal = self.audio.to_soundarray()
+        # Extract the audio as a list of samples
+        audio_samples = list(audio.iter_frames())
+        # Convert the list of samples to a NumPy array
+        self.signal = np.array(audio_samples)
         if len(self.signal.shape) == 1:
             self.signal = self.signal.reshape(-1, 1)
 

@@ -1,4 +1,4 @@
-FROM python:3.8-slim
+FROM python:3.11-slim
 
 ARG USER_ID=1000
 ARG DEVELOPMENT=0
