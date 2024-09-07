@@ -3,7 +3,7 @@ from typing import Dict, List, Tuple
 import numpy as np
 
 from moviepy.audio.io.AudioFileClip import AudioFileClip
-from moviepy.editor import VideoFileClip, concatenate_videoclips
+from moviepy.editor import concatenate_videoclips
 from moviepy.video.fx.all import speedx
 from moviepy.video.io.VideoFileClip import VideoFileClip
 from tqdm import tqdm
