@@ -20,7 +20,7 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.11"
 moviepy = "~=1.0.3"
-tqdm = "~=4.60.0"
+tqdm = ">=4.60,<4.67"
 
 [tool.poetry.dev-dependencies]
 coverage = "~=5.3.0"
