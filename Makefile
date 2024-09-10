@@ -9,8 +9,8 @@ SHELL:=/bin/bash
 PROFILE = default
 PROJECT_NAME = jumpcutter
 PYTHON_INTERPRETER = python
-DOCKER_COMPOSE_RUN = docker-compose run -w /app --rm app
-lock_dependencies: BUILD_POETRY_LOCK = /home/emkademy/poetry.lock.build
+DOCKER_COMPOSE_RUN = docker compose run -w /app --rm app
+lock_dependencies: BUILD_POETRY_LOCK = ~/poetry.lock.build
 
 
 #################################################################################

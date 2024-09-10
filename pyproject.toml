@@ -18,7 +18,7 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.11"
 moviepy = "~=1.0.3"
 tqdm = "~=4.60.0"
 
