@@ -2,10 +2,8 @@ from typing import Dict, List, Tuple
 
 import numpy as np
 
-from moviepy.audio.io.AudioFileClip import AudioFileClip
-from moviepy.editor import concatenate_videoclips
-from moviepy.video.fx.all import speedx
-from moviepy.video.io.VideoFileClip import VideoFileClip
+from moviepy import AudioFileClip, concatenate_videoclips, VideoFileClip
+from moviepy.video.fx import MultiplySpeed
 from tqdm import tqdm
 
 
@@ -50,22 +48,22 @@ class Clip:
         jumpcutted_clips = []
         previous_stop = 0
         for start, stop in tqdm(intervals_to_cut, desc="Cutting silent intervals"):
-            clip_before = self.clip.subclip(previous_stop, start)
+            clip_before = self.clip.subclipped(previous_stop, start)
 
             if clip_before.duration > self.min_loud_part_duration:
                 jumpcutted_clips.append(clip_before)
 
             if self.silence_part_speed is not None:
-                silence_clip = self.clip.subclip(start, stop)
-                silence_clip = speedx(
-                    silence_clip, self.silence_part_speed
-                ).without_audio()
+                silence_clip = self.clip.subclipped(start, stop)
+                silence_clip = silence_clip.with_effects([
+                    MultiplySpeed(self.silence_part_speed)
+                ]).without_audio()
                 jumpcutted_clips.append(silence_clip)
 
             previous_stop = stop
 
         if previous_stop < self.clip.duration:
-            last_clip = self.clip.subclip(previous_stop, self.clip.duration)
+            last_clip = self.clip.subclipped(previous_stop, self.clip.duration)
             jumpcutted_clips.append(last_clip)
         return jumpcutted_clips
 
@@ -75,7 +73,7 @@ class Clip:
         jumpcutted_clips = []
         for start, stop in tqdm(intervals_to_cut, desc="Cutting voiced intervals"):
             if start < stop:
-                silence_clip = self.clip.subclip(start, stop)
+                silence_clip = self.clip.subclipped(start, stop)
                 jumpcutted_clips.append(silence_clip)
         return jumpcutted_clips
 
